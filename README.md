@@ -2,5 +2,22 @@
 User bot for telegram, for solving problems, simplifying work, and all sorts of commands
 
 # Termux 
-git clone 
-cd userbot
+# 1 Termux
+
+apt update
+
+apt upgrade
+
+pkg update
+
+apt upgrade
+
+pkg install python
+
+# 2 Termux
+git clone https://github.com/Shizzychi/SUbotProgram.git
+
+# Finish Termux
+
+startbot
+
