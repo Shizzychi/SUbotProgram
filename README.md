@@ -19,5 +19,7 @@ git clone https://github.com/Shizzychi/SUbotProgram.git
 
 # Finish Termux
 
-startbot
+cd SUbotProgram
+
+python main.py
 
