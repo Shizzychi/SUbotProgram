@@ -6,8 +6,8 @@ import os
 import signal
 import sys
 
-api_id = "23286444"
-api_hash = "f56caed4076eaba4deda000795a42589"
+api_id = ""
+api_hash = ""
 your_user_id = 123456789
 
 client = TelegramClient("userbot_session", api_id, api_hash)
