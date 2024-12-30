@@ -44,13 +44,6 @@ def is_math_expression(message):
     pattern = r"^[\d+\-*/(). ]+$"
     return re.match(pattern, message)
 
-def fetch_image(query):
-    url = f"https://source.unsplash.com/600x400/?{query}"
-    response = requests.get(url)
-    if response.status_code == 200:
-        return BytesIO(response.content)
-    return None
-
 @client.on(events.NewMessage)
 async def handle_message(event):
     if event.sender_id == your_user_id:
@@ -63,24 +56,20 @@ async def handle_message(event):
             except Exception:
                 await event.reply("Ошибка при вычислении.")
 
-        if message.startswith(".P "):
-            query = message[3:].strip()
-            image_data = fetch_image(query)
-            if image_data:
-                await client.send_file(event.chat_id, file=image_data, caption=f"Вот ваш запрос: {query}")
-            else:
-                await event.reply("Изображение не найдено.")
-
-def start_bot():
+async def start_bot():
     try:
-        loop = asyncio.new_event_loop()
-        asyncio.set_event_loop(loop)
-        client.start()
+        await client.start()
         print("Бот запущен!")
-        loop.run_until_complete(client.run_until_disconnected())
+        await client.run_until_disconnected()
     except Exception as e:
         print(f"Ошибка запуска: {e}")
         input("Нажмите Enter для возврата в меню...")
+
+def stop_bot():
+    print("Остановка бота...")
+    loop = asyncio.get_event_loop()
+    loop.stop()
+    print("Бот остановлен.")
 
 def menu():
     while True:
@@ -101,33 +90,3 @@ def menu():
         print("4. Выйти")
         
         choice = input("\nВыберите опцию: ")
-        
-        if choice == "1":
-            print("Запуск бота...")
-            bot_thread = threading.Thread(target=start_bot)
-            bot_thread.start()
-            input("Бот запущен! Нажмите Enter для возврата в меню...")
-        
-        elif choice == "2":
-            print("Остановка бота...")
-            os.kill(os.getpid(), signal.SIGTERM)
-        
-        elif choice == "3":
-            print("Удаление сессии...")
-            try:
-                os.remove("userbot_session.session")
-                print("Сессия удалена.")
-            except FileNotFoundError:
-                print("Сессия не найдена.")
-            input("Нажмите Enter для возврата в меню...")
-        
-        elif choice == "4":
-            print("Выход...")
-            sys.exit(0)
-        
-        else:
-            print("Неверная опция!")
-            input("Нажмите Enter для возврата в меню...")
-
-if __name__ == "__main__":
-    menu()
