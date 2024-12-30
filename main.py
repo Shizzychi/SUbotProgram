@@ -8,7 +8,7 @@ from io import BytesIO
 config_file = "config.json"
 
 def get_config():
-    if os.path.exists(config_file)
+    if os.path.exists(config_file):
         with open(config_file, 'r') as file:
             config = json.load(file)
         return config
