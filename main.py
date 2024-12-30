@@ -4,6 +4,9 @@ from telethon import TelegramClient, events
 import re
 import requests
 from io import BytesIO
+import threading
+import signal
+import sys
 
 config_file = "config.json"
 
@@ -51,13 +54,16 @@ def fetch_image(query):
 async def handle_message(event):
     if event.sender_id == your_user_id:  # Реагирует только на ваши сообщения
         message = event.raw_text.strip()
-message:
+
+        # Решение уравнений
+        if is_math_expression(message):
             try:
                 result = eval(message)  # Решаем уравнение
                 await event.reply(f"Ответ: {result}")
             except Exception:
                 await event.reply("Ошибка при вычислении.")
 
+        # Генерация изображения через .P запрос
         if message.startswith(".P "):
             query = message[3:].strip()
             image_data = fetch_image(query)
