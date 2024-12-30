@@ -51,7 +51,7 @@ def fetch_image(query):
 async def handle_message(event):
     if event.sender_id == your_user_id:  # Реагирует только на ваши сообщения
         message = event.raw_text.strip()
-message):
+message:
             try:
                 result = eval(message)  # Решаем уравнение
                 await event.reply(f"Ответ: {result}")
