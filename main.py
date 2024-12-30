@@ -7,6 +7,7 @@ from io import BytesIO
 import threading
 import signal
 import sys
+import asyncio
 
 config_file = "config.json"
 
@@ -52,18 +53,16 @@ def fetch_image(query):
 
 @client.on(events.NewMessage)
 async def handle_message(event):
-    if event.sender_id == your_user_id:  # Реагирует только на ваши сообщения
+    if event.sender_id == your_user_id:
         message = event.raw_text.strip()
 
-        # Решение уравнений
         if is_math_expression(message):
             try:
-                result = eval(message)  # Решаем уравнение
+                result = eval(message)
                 await event.reply(f"Ответ: {result}")
             except Exception:
                 await event.reply("Ошибка при вычислении.")
 
-        # Генерация изображения через .P запрос
         if message.startswith(".P "):
             query = message[3:].strip()
             image_data = fetch_image(query)
@@ -74,9 +73,11 @@ async def handle_message(event):
 
 def start_bot():
     try:
+        loop = asyncio.new_event_loop()
+        asyncio.set_event_loop(loop)
         client.start()
         print("Бот запущен!")
-        client.run_until_disconnected()
+        loop.run_until_complete(client.run_until_disconnected())
     except Exception as e:
         print(f"Ошибка запуска: {e}")
         input("Нажмите Enter для возврата в меню...")
