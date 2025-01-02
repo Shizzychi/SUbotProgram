@@ -1,7 +1,8 @@
 import os
 import json
 from telethon import TelegramClient, events
-import re
+import ast
+import operator
 import asyncio
 import sys
 
@@ -39,25 +40,46 @@ your_user_id = int(config["user_id"])
 client = TelegramClient("userbot_session", api_id, api_hash)
 
 
-def is_math_expression(message):
+def safe_eval(expr):
+    allowed_operators = {
+        ast.Add: operator.add,
+        ast.Sub: operator.sub,
+        ast.Mult: operator.mul,
+        ast.Div: operator.truediv,
+        ast.Pow: operator.pow,
+        ast.Mod: operator.mod,
+        ast.UAdd: operator.pos,
+        ast.USub: operator.neg
+    }
+
+    def eval_node(node):
+        if isinstance(node, ast.BinOp):
+            left = eval_node(node.left)
+            right = eval_node(node.right)
+            return allowed_operators[type(node.op)](left, right)
+        elif isinstance(node, ast.UnaryOp):
+            operand = eval_node(node.operand)
+            return allowed_operators[type(node.op)](operand)
+        elif isinstance(node, ast.Num):
+            return node.n
+        elif isinstance(node, ast.Expression):
+            return eval_node(node.body)
+        else:
+            raise ValueError("Недопустимое выражение")
+
     try:
-        eval(message)
-        return True
-    except:
-        return False
+        node = ast.parse(expr, mode='eval')
+        return eval_node(node.body)
+    except Exception:
+        return "Ошибка при вычислении"
 
 
 @client.on(events.NewMessage)
 async def handle_message(event):
     if event.sender_id == your_user_id:
         message = event.raw_text.strip()
-
-        if is_math_expression(message):
-            try:
-                result = eval(message)
-                await event.reply(f"Ответ: {result}")
-            except Exception:
-                await event.reply("Ошибка при вычислении.")
+        result = safe_eval(message)
+        await event.reply(f"Ответ: {result}")
 
 
 async def start_bot():
@@ -88,7 +110,7 @@ def menu():
   /  /_\  \   |      /     |  |  |  |  /  /_\  \   |  |     |  |   /  /_\  \   
  /  _____  \  |  |\  \----.|  '--'  | /  _____  \  |  `----.|  |  /  _____  \  
 /__/     \__\ | _| `._____||_______/ /__/     \__\ |_______||__| /__/     \__\ 
-                     version: 0w2.1b                                                          
+                                                                               
         """)
         print("\033[0m")
         print("1. Запустить бота")
